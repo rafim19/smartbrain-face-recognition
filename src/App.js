@@ -35,7 +35,14 @@ class App extends Component {
       imageUrl: '',
       box: {},
       route: 'signIn',
-      signInStatus: false
+      signInStatus: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joinedDate: ''
+      }
     };
   }
 
@@ -73,8 +80,23 @@ class App extends Component {
     app.models.predict(
       'a403429f2ddf4b49b307e318f00e528b',
       this.state.input)
-    .then(response => this.changeBoxState(this.calculateFaceLocation(response)))
-    .catch(err => console.log('ada error', err))
+    .then(response => {
+      if (response) {
+        fetch('http://localhost:3000/image', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        })
+          .then(response => response.json())
+          .then(entryCount => {
+            this.setState(Object.assign(this.state.user, { entries: entryCount }))
+          })
+      }
+      this.changeBoxState(this.calculateFaceLocation(response))
+    })
+    .catch(err => console.log('ada error di SignIn.js onButtonSubmit function', err))
   }
 
   onRouteStateChange = (routeValue) => {
@@ -94,8 +116,22 @@ class App extends Component {
     })
   }
 
+  loadUser = (data) => {
+    this.setState(() => {
+      return {
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          entries: data.entries,
+          joinedDate: data.joinedDate
+        }
+      }
+    })
+  }
+
   render() {
-    const { imageUrl, box, route, signInStatus } = this.state;
+    const { imageUrl, box, route, signInStatus, user } = this.state;
     return (
       <section className="App">
         <Particles className="particles" params={particleOptions} />
@@ -103,7 +139,7 @@ class App extends Component {
         { (route === 'home')  
             ? <section>
                 <Logo />
-                <Rank />
+                <Rank userName={user.name} userEntries={user.entries} />
                 <InputPhotoURL 
                   inputChange={this.onInputChange}
                   buttonSubmit={this.onButtonSubmit}
@@ -112,8 +148,8 @@ class App extends Component {
                 <Credits />
               </section> 
             : (route === 'signIn')
-              ? <SignIn buttonSignIn={this.onRouteStateChange} buttonRegister={this.onRouteStateChange}/>
-              : <Register buttonRegister={this.onRouteStateChange}/>
+              ? <SignIn loadUser={this.loadUser} buttonSignIn={this.onRouteStateChange} buttonRegister={this.onRouteStateChange} />
+              : <Register loadUser={this.loadUser}  buttonRegister={this.onRouteStateChange}/>
         }
       </section>
     );
