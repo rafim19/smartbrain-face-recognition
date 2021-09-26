@@ -32,29 +32,23 @@ class Register extends React.Component {
   }
 
   onRegisterButton = () => {
-    const { registerNameInput, registerEmailInput, registerPassInput } = this.state;
-    if (registerNameInput && registerEmailInput && registerPassInput) {
-      fetch('http://localhost:3000/register', {
-        method: 'post',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(this.state)
+    fetch('http://localhost:3000/register', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(this.state)
+    })
+      .then(res => res.json())
+      .then(user => {
+        if (user.id) {
+          this.props.loadUser(user)
+          this.props.onRouteStateChange('home')
+        } else {
+          alert("Unable to register")
+        }
       })
-        .then(res => res.json())
-        .then(user => {
-          if (user) {
-            this.props.loadUser(user)
-            this.props.buttonRegister('home')
-          } else {
-            alert("Error logging in")
-          }
-        })
-    } else {
-      alert('Please fill all of the fields correctly')
-    }
   }
 
   render() {
-    const { buttonRegister } = this.props;
     return (
       <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
         <div className="pa4 black-80">

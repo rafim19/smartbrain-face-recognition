@@ -27,23 +27,25 @@ const particleOptions = {
   }
 };
 
+const initialState = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'signIn',
+  signInStatus: false,
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joinedDate: ''
+  }
+};
+
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imageUrl: '',
-      box: {},
-      route: 'signIn',
-      signInStatus: false,
-      user: {
-        id: '',
-        name: '',
-        email: '',
-        entries: 0,
-        joinedDate: ''
-      }
-    };
+    this.state = initialState;
   }
 
   calculateFaceLocation = (data) => {
@@ -102,7 +104,7 @@ class App extends Component {
   onRouteStateChange = (routeValue) => {
     if (routeValue === 'signIn' || routeValue === 'register') {
       this.setState(() => {
-        return {signInStatus: false}
+        return initialState
       })
     } else if (routeValue === 'home') {
       this.setState(() => {
@@ -148,8 +150,8 @@ class App extends Component {
                 <Credits />
               </section> 
             : (route === 'signIn')
-              ? <SignIn loadUser={this.loadUser} buttonSignIn={this.onRouteStateChange} buttonRegister={this.onRouteStateChange} />
-              : <Register loadUser={this.loadUser}  buttonRegister={this.onRouteStateChange}/>
+              ? <SignIn loadUser={this.loadUser} onRouteStateChange={this.onRouteStateChange} />
+              : <Register loadUser={this.loadUser} onRouteStateChange={this.onRouteStateChange}/>
         }
       </section>
     );

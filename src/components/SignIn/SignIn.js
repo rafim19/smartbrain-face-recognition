@@ -1,5 +1,4 @@
 import React from 'react';
-// import './SignIn.css';
 
 class SignIn extends React.Component {
   constructor(props) {
@@ -12,12 +11,10 @@ class SignIn extends React.Component {
 
   onInputChange = (event) => {
     if (event.target.id === 'email-address') {
-      // console.log('tes')
       this.setState(() => {
         return { signInEmailInput: event.target.value }
       })
     } else if (event.target.id === 'password') {
-      // console.log('password')
       this.setState(() => {
         return { signInPasswordInput: event.target.value }
       })
@@ -27,31 +24,26 @@ class SignIn extends React.Component {
   }
 
   onSignInButton = () => {
-    const { signInEmailInput, signInPasswordInput } = this.state;
-    if (signInEmailInput && signInPasswordInput) {
-      fetch('http://localhost:3000/signin', 
-        {
-          method: 'post',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(this.state)
+    fetch('http://localhost:3000/signin', 
+      {
+        method: 'post',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(this.state)
+      }
+    )
+      .then(res => res.json())
+      .then(user => {
+        if (user.id) {
+          this.props.loadUser(user)
+          this.props.onRouteStateChange('home')
+        } else {
+          alert("Error logging in")
         }
-      )
-        .then(res => res.json())
-        .then(user => {
-          if (user.id) {
-            this.props.loadUser(user)
-            this.props.buttonSignIn('home')
-          } else {
-            alert("Error logging in")
-          }
-        })
-    } else {
-      alert('Please fill all of the fields correctly')
-    }
+      })
   }
 
   render() {
-    const { buttonRegister } = this.props;
+    const { onRouteStateChange } = this.props;
     return (
       <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
         <div className="pa4 black-80">
@@ -83,7 +75,7 @@ class SignIn extends React.Component {
               <input className="b br2 ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib sign-in-btn" type="submit" value="Sign in" onClick={this.onSignInButton}/>
             </div>
             <div className="lh-copy mt3">
-              <a href="#" className="f6 link dim black db" onClick={() => buttonRegister('register')}>Register</a>
+              <a href="#" className="f6 link dim black db" onClick={() => onRouteStateChange('register')}>Register</a>
             </div>
           </div>
         </div>
